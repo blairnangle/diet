@@ -10,7 +10,7 @@ import boto3.s3
 from botocore.exceptions import ClientError
 
 
-def lambda_handler():
+def lambda_handler(event, context):
     secrets_manager_client = boto3.client(
         service_name="secretsmanager",
         region_name="eu-west-2",
