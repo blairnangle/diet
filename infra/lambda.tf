@@ -3,6 +3,7 @@ resource "aws_lambda_function" "pocket" {
   function_name = "pocket"
   role          = aws_iam_role.pocket.arn
   package_type  = "Image"
+  timeout       = 60
 }
 
 resource "aws_iam_role" "pocket" {
