@@ -57,17 +57,17 @@ def lambda_handler(event, context):
             }
         )
 
-    with open("../pocket.json", "w") as f:
+    with open("/tmp/pocket.json", "w") as f:
         json.dump(content_read, f)
 
     copy_file(
         s3_client=s3_client,
-        file_to_be_replaced="../pocket.json",
+        file_to_be_replaced="/tmp/pocket.json",
         bucket="information-diet.blairnangle.com",
     )
     upload_file(
         s3_client=s3_client,
-        file_name="../pocket.json",
+        file_name="/tmp/pocket.json",
         bucket="information-diet.blairnangle.com",
         object_name="pocket.json",
     )
