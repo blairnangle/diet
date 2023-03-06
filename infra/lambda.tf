@@ -1,9 +1,9 @@
-#resource "aws_lambda_function" "pocket" {
-#  image_uri     = "${aws_ecr_repository.information_diet_image_registry.repository_url}:latest"
-#  function_name = "pocket"
-#  role          = aws_iam_role.pocket.arn
-#  package_type  = "Image"
-#}
+resource "aws_lambda_function" "pocket" {
+  image_uri     = "${aws_ecr_repository.pocket.repository_url}:latest"
+  function_name = "pocket"
+  role          = aws_iam_role.pocket.arn
+  package_type  = "Image"
+}
 
 resource "aws_iam_role" "pocket" {
   name = "pocket"
