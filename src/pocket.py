@@ -64,8 +64,8 @@ def lambda_handler(event, context):
         json.dump(content_read, f)
 
     copy_file(
-        s3_client=s3_client,
-        file_to_be_replaced=f"/tmp/{latest_file_name}",
+        existing_file=latest_file_name,
+        new_file=f"pocket-{time.strftime('%Y-%m-%d')}.json",
         bucket=bucket,
     )
     upload_file(
@@ -87,11 +87,8 @@ def upload_file(s3_client: boto3.client, file_name: str, bucket: str, object_nam
     return True
 
 
-def copy_file(s3_client: boto3.client, file_to_be_replaced: str, bucket: str):
-    copy_source = {"Bucket": bucket, "Key": file_to_be_replaced}
-
-    s3_client.copy_object(
-        Bucket=bucket,
-        Key=file_to_be_replaced,
-        CopySource=copy_source,
+def copy_file(existing_file: str, new_file: str, bucket: str):
+    s3_resource = boto3.resource("s3")
+    s3_resource.Object(bucket, new_file).copy_from(
+        CopySource=f"{bucket}/{existing_file}"
     )
