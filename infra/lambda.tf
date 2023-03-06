@@ -24,3 +24,12 @@ resource "aws_iam_role_policy_attachment" "lambda_secrets_manager" {
   role       = aws_iam_role.pocket.name
   policy_arn = aws_iam_policy.lambda_secrets_manager.arn
 }
+
+resource "aws_iam_policy" "lambda_logging" {
+  policy = file("templates/lambda-logging.json")
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_logging" {
+  role       = aws_iam_role.pocket.name
+  policy_arn = aws_iam_policy.lambda_logging.arn
+}
