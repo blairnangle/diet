@@ -57,19 +57,22 @@ def lambda_handler(event, context):
             }
         )
 
+    bucket = "information-diet.blairnangle.com"
+    latest_file_name = "pocket.json"
+
     with open("/tmp/pocket.json", "w") as f:
         json.dump(content_read, f)
 
     copy_file(
         s3_client=s3_client,
-        file_to_be_replaced="/tmp/pocket.json",
-        bucket="information-diet.blairnangle.com",
+        file_to_be_replaced=f"/tmp/{latest_file_name}",
+        bucket=bucket,
     )
     upload_file(
         s3_client=s3_client,
-        file_name="/tmp/pocket.json",
-        bucket="information-diet.blairnangle.com",
-        object_name="pocket.json",
+        file_name=f"/tmp/{latest_file_name}",
+        bucket=bucket,
+        object_name=latest_file_name,
     )
 
 
@@ -87,8 +90,8 @@ def upload_file(s3_client: boto3.client, file_name: str, bucket: str, object_nam
 def copy_file(s3_client: boto3.client, file_to_be_replaced: str, bucket: str):
     copy_source = {"Bucket": bucket, "Key": file_to_be_replaced}
 
-    s3_client.meta.client.copy(
+    s3_client.copy_object(
         copy_source,
-        "information-diet.blairnangle.com",
+        bucket,
         f"pocket-replaced-on-{time.strftime('%Y-%m-%d')}.json",
     )
