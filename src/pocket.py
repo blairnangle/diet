@@ -91,7 +91,7 @@ def copy_file(s3_client: boto3.client, file_to_be_replaced: str, bucket: str):
     copy_source = {"Bucket": bucket, "Key": file_to_be_replaced}
 
     s3_client.copy_object(
-        copy_source,
-        bucket,
-        f"pocket-replaced-on-{time.strftime('%Y-%m-%d')}.json",
+        Bucket=bucket,
+        Key=file_to_be_replaced,
+        CopySource=copy_source,
     )
