@@ -14,7 +14,9 @@ resource "aws_s3_bucket_public_access_block" "information_diet" {
 resource "aws_s3_bucket_policy" "information_diet" {
   bucket = aws_s3_bucket.information_diet.id
   policy = templatefile("${path.module}/templates/s3.json", {
-    awsAccountNumber = var.aws_account_number
+    awsAccountNumber = var.aws_account_number,
+    lambdaRoleArn    = aws_iam_role.pocket.arn,
+    bucketName       = aws_s3_bucket.information_diet.bucket
   })
 }
 

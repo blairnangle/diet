@@ -6,8 +6,7 @@ resource "aws_lambda_function" "pocket" {
 }
 
 resource "aws_iam_role" "pocket" {
-  name = "pocket"
-
+  name               = "pocket"
   assume_role_policy = file("./templates/lambda-assume-role.json")
 }
 

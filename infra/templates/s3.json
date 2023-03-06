@@ -8,24 +8,40 @@
       "Action": [
         "s3:GetObject"
       ],
-      "Resource": "arn:aws:s3:::information-diet.blairnangle.com/*"
+      "Resource": [
+        "arn:aws:s3:::${bucketName}",
+        "arn:aws:s3:::${bucketName}/*"
+      ]
     },
     {
-      "Sid": "AllowWriteFromAWSAccount",
+      "Sid": "AllowMyselfToManageBucket",
       "Effect": "Allow",
       "Principal": {
-        "AWS": "arn:aws:iam::${awsAccountNumber}:root"
+        "AWS": "arn:aws:iam::${awsAccountNumber}:user/blair"
       },
       "Action": [
-        "s3:PutObject",
-        "s3:PutObjectAcl",
-        "s3:PutObjectTagging",
-        "s3:PutObjectVersionAcl",
-        "s3:PutObjectVersionTagging",
-        "s3:DeleteObject",
-        "s3:DeleteObjectVersion"
+        "s3:*"
       ],
-      "Resource": "arn:aws:s3:::information-diet.blairnangle.com/*"
+      "Resource": [
+        "arn:aws:s3:::${bucketName}",
+        "arn:aws:s3:::${bucketName}/*"
+      ]
+    },
+    {
+      "Sid": "AllowLambdaFunctionsToManageBucket",
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": [
+          "${lambdaRoleArn}"
+        ]
+      },
+      "Action": [
+        "s3:*"
+      ],
+      "Resource": [
+        "arn:aws:s3:::${bucketName}",
+        "arn:aws:s3:::${bucketName}/*"
+      ]
     }
   ]
 }
