@@ -7,8 +7,7 @@ on:
     branches: [ main ]
 
 env:
-  IMAGE_AND_LAMBDA_NAME: information-diet
-  AWS_ECR_IMAGE_REGISTRY: information-diet-registry
+  APP_NAME: pocket
   AWS_REGION: eu-west-2
 
 jobs:
@@ -22,23 +21,23 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v1-node16
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Build Docker image
-        run: docker build -t ${{ env.IMAGE_AND_LAMBDA_NAME }} .
+        run: docker build -t ${{ env.APP_NAME }} .
 
       - name: Tag Docker image
-        run: docker tag ${{ env.IMAGE_AND_LAMBDA_NAME }}:latest ${{ secrets.AWS_ACCOUNT_NUMBER }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.AWS_ECR_IMAGE_REGISTRY }}:latest
+        run: docker tag ${{ env.APP_NAME }}:latest ${{ secrets.AWS_ACCOUNT_NUMBER }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.APP_NAME }}:latest
 
       - name: Authenticate Docker CLI to use AWS ECR
         run: aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_NUMBER }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
 
       - name: Push Docker image to ECR image registry
-        run: docker push ${{ secrets.AWS_ACCOUNT_NUMBER }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.AWS_ECR_IMAGE_REGISTRY }}:latest
+        run: docker push ${{ secrets.AWS_ACCOUNT_NUMBER }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.APP_NAME }}:latest
 
       - name: Update Lambda function code to use latest image
-        run: aws lambda update-function-code --function-name ${{ env.IMAGE_AND_LAMBDA_NAME }} --image-uri ${{ secrets.AWS_ACCOUNT_NUMBER }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.AWS_ECR_IMAGE_REGISTRY }}:latest
+        run: aws lambda update-function-code --function-name ${{ env.APP_NAME }} --image-uri ${{ secrets.AWS_ACCOUNT_NUMBER }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.APP_NAME }}:latest

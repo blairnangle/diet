@@ -1,5 +1,5 @@
-resource "aws_ecr_repository" "information_diet_image_registry" {
-  name                 = "information-diet-image-registry"
+resource "aws_ecr_repository" "pocket" {
+  name                 = "pocket"
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
