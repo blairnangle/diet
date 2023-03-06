@@ -10,7 +10,7 @@ import boto3.s3
 from botocore.exceptions import ClientError
 
 
-def lambda_handler(event, context):
+def lambda_handler():
     secrets_manager_client = boto3.client(
         service_name="secretsmanager",
         region_name="eu-west-2",
@@ -63,11 +63,11 @@ def lambda_handler(event, context):
     with open("/tmp/pocket.json", "w") as f:
         json.dump(content_read, f)
 
-    # copy_file(
-    #     s3_client=s3_client,
-    #     file_to_be_replaced=f"/tmp/{latest_file_name}",
-    #     bucket=bucket,
-    # )
+    copy_file(
+        s3_client=s3_client,
+        file_to_be_replaced=f"/tmp/{latest_file_name}",
+        bucket=bucket,
+    )
     upload_file(
         s3_client=s3_client,
         file_name=f"/tmp/{latest_file_name}",
