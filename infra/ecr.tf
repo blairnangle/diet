@@ -7,6 +7,19 @@ resource "aws_ecr_repository" "pocket" {
   }
 
   tags = {
-    Name = "information-diet image registry"
+    Name = "pocket"
+  }
+}
+
+resource "aws_ecr_repository" "goodreads" {
+  name                 = "goodreads"
+  image_tag_mutability = "MUTABLE"
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+
+  tags = {
+    Name = "goodreads"
   }
 }

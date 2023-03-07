@@ -1,13 +1,11 @@
-import logging
-import os
+import json
 import time
 
-import json
-import requests
 import boto3
 import boto3.s3
+import requests
 
-from botocore.exceptions import ClientError
+from src.common import copy_file, upload_file
 
 
 def lambda_handler(event, context):
@@ -15,8 +13,6 @@ def lambda_handler(event, context):
         service_name="secretsmanager",
         region_name="eu-west-2",
     )
-
-    s3_client = boto3.client(service_name="s3")
 
     consumer_key: str = secrets_manager_client.get_secret_value(
         SecretId="information-diet-pocket-consumer-key"
@@ -60,7 +56,7 @@ def lambda_handler(event, context):
     bucket = "information-diet.blairnangle.com"
     latest_file_name = "pocket.json"
 
-    with open("/tmp/pocket.json", "w") as f:
+    with open(f"/tmp/{latest_file_name}", "w") as f:
         json.dump(content_read, f)
 
     copy_file(
@@ -69,26 +65,7 @@ def lambda_handler(event, context):
         bucket=bucket,
     )
     upload_file(
-        s3_client=s3_client,
         file_name=f"/tmp/{latest_file_name}",
         bucket=bucket,
         object_name=latest_file_name,
-    )
-
-
-def upload_file(s3_client: boto3.client, file_name: str, bucket: str, object_name=None):
-    if object_name is None:
-        object_name = os.path.basename(file_name)
-    try:
-        response = s3_client.upload_file(file_name, bucket, object_name)
-    except ClientError as e:
-        logging.error(e)
-        return False
-    return True
-
-
-def copy_file(existing_file: str, new_file: str, bucket: str):
-    s3_resource = boto3.resource("s3")
-    s3_resource.Object(bucket, new_file).copy_from(
-        CopySource=f"{bucket}/{existing_file}"
     )
