@@ -34,20 +34,20 @@ resource "aws_iam_role_policy_attachment" "pocket_logging" {
   policy_arn = aws_iam_policy.lambda_logging.arn
 }
 
-resource "aws_lambda_function" "goodreads" {
-  image_uri     = "${aws_ecr_repository.goodreads.repository_url}:latest"
-  function_name = "goodreads"
-  role          = aws_iam_role.goodreads.arn
-  package_type  = "Image"
-  timeout       = 60
-}
-
-resource "aws_iam_role" "goodreads" {
-  name               = "goodreads"
-  assume_role_policy = file("./templates/lambda-assume-role.json")
-}
-
-resource "aws_iam_role_policy_attachment" "goodreads_logging" {
-  role       = aws_iam_role.goodreads.name
-  policy_arn = aws_iam_policy.lambda_logging.arn
-}
+#resource "aws_lambda_function" "goodreads" {
+#  image_uri     = "${aws_ecr_repository.goodreads.repository_url}:latest"
+#  function_name = "goodreads"
+#  role          = aws_iam_role.goodreads.arn
+#  package_type  = "Image"
+#  timeout       = 60
+#}
+#
+#resource "aws_iam_role" "goodreads" {
+#  name               = "goodreads"
+#  assume_role_policy = file("./templates/lambda-assume-role.json")
+#}
+#
+#resource "aws_iam_role_policy_attachment" "goodreads_logging" {
+#  role       = aws_iam_role.goodreads.name
+#  policy_arn = aws_iam_policy.lambda_logging.arn
+#}

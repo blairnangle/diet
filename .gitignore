@@ -7,3 +7,6 @@
 *.tfstate.backup
 *.tfvars
 .terraform.lock.hcl
+
+# Project-specific Git commit message (to configure: git config commit.template .gitmessage)
+.gitmessage
