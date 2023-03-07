@@ -1,6 +1,9 @@
 # IntelliJ
 .idea
 
+# Python
+__pycache__
+
 # Terraform
 .terraform
 *.tfstate

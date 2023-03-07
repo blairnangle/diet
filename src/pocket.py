@@ -5,7 +5,7 @@ import boto3
 import boto3.s3
 import requests
 
-from src.common import copy_file, upload_file
+from common import copy_file, upload_file
 
 
 def lambda_handler(event, context):

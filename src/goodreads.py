@@ -3,7 +3,7 @@ import json
 import requests
 from bs4 import BeautifulSoup
 
-from src.common import upload_file
+from common import upload_file
 
 
 def lambda_handler(event, context):
