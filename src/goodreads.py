@@ -63,7 +63,7 @@ def process_book(raw_book: dict[str]) -> dict[str]:
 
 def lambda_handler(event, context):
     my_read_shelf = requests.get(
-        "https://www.goodreads.com/review/list/74431442-blair-nangle?shelf=read"
+        "https://www.goodreads.com/review/list/74431442-blair-nangle?shelf=read&sort=date_read&order=d"
     )
     html = my_read_shelf.content
     soup = BeautifulSoup(html, "html.parser")
@@ -75,7 +75,7 @@ def lambda_handler(event, context):
                 review.find("td", {"class": "field title"})
                 .find("div", {"class": "value"})
                 .find("a", recursive=False)
-                .string
+                .find(string=True, recursive=False)
             ),
             "url": str(
                 review.find("td", {"class": "field actions"})
@@ -98,6 +98,8 @@ def lambda_handler(event, context):
             ),
         }
         raw_books.append(book)
+
+    print(raw_books)
 
     processed_books = list(map(process_book, raw_books))
 
