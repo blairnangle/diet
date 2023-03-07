@@ -7,15 +7,22 @@ from bs4 import BeautifulSoup
 from common import upload_file, copy_file
 
 
-def remove_whitespace(text: str):
+def remove_whitespace(text: str) -> str:
     return text.strip()
 
 
-def flip_author(author: str):
-    if "," in author:
-        author = author.split(", ")
-        author = author[1] + " " + author[0]
-    return author
+def construct_url(url: str) -> str:
+    return f"https://www.goodreads.com{url}"
+
+
+def flip_author(author: str) -> str:
+    if "," not in author:
+        return author
+    else:
+        split = author.split(", ")
+        flipped = split[1] + " " + split[0]
+
+        return flipped
 
 
 def convert_us_date_str_to_iso_str(date: str) -> str:
@@ -43,14 +50,15 @@ def convert_us_date_str_to_iso_str(date: str) -> str:
         return f"{year}-{short_month_to_number[month]}-{day}"
 
 
-def process_book(raw_book: dict[str]):
-    raw_book["title"] = remove_whitespace(raw_book["title"])
-    raw_book["author"] = flip_author(remove_whitespace(raw_book["author"]))
-    raw_book["finished_on"] = convert_us_date_str_to_iso_str(
-        remove_whitespace(raw_book["finished_on"])
-    )
-
-    return raw_book
+def process_book(raw_book: dict[str]) -> dict[str]:
+    return {
+        "title": remove_whitespace(raw_book["title"]),
+        "url": construct_url(remove_whitespace(raw_book["url"])),
+        "author": flip_author(remove_whitespace(raw_book["author"])),
+        "finished": convert_us_date_str_to_iso_str(
+            remove_whitespace(raw_book["finished"])
+        ),
+    }
 
 
 def lambda_handler(event, context):
@@ -59,7 +67,7 @@ def lambda_handler(event, context):
     )
     html = my_read_shelf.content
     soup = BeautifulSoup(html, "html.parser")
-    reviews = soup.find_all("tr", {"class": "bookalike review"})
+    reviews = soup.find_all("tr", {"class": "bookalike review"}, limit=20)
     raw_books = []
     for review in reviews:
         book = {
@@ -69,13 +77,20 @@ def lambda_handler(event, context):
                 .find("a", recursive=False)
                 .string
             ),
+            "url": str(
+                review.find("td", {"class": "field actions"})
+                .find("div", {"class": "value"})
+                .find("div")
+                .find("a", recursive=False)
+                .get("href")
+            ),
             "author": str(
                 review.find("td", {"class": "field author"})
                 .find("div", {"class": "value"})
                 .find("a", recursive=False)
                 .string
             ),
-            "finished_on": str(
+            "finished": str(
                 review.find("td", {"class": "field date_read"})
                 .find("div", {"class": "value"})
                 .find("span", {"class": "date_read_value"})
