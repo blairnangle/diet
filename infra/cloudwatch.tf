@@ -18,8 +18,8 @@ resource "aws_cloudwatch_event_target" "nightly_cron_pocket" {
   arn       = aws_lambda_function.pocket.arn
 }
 
-#resource "aws_cloudwatch_event_target" "nightly_cron_goodreads" {
-#  target_id = "nightly-cron-goodreads"
-#  rule      = aws_cloudwatch_event_rule.nightly_cron.name
-#  arn       = aws_lambda_function.goodreads.arn
-#}
+resource "aws_cloudwatch_event_target" "nightly_cron_goodreads" {
+  target_id = "nightly-cron-goodreads"
+  rule      = aws_cloudwatch_event_rule.nightly_cron.name
+  arn       = aws_lambda_function.goodreads.arn
+}
