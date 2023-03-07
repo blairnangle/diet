@@ -99,8 +99,6 @@ def lambda_handler(event, context):
         }
         raw_books.append(book)
 
-    print(raw_books)
-
     processed_books = list(map(process_book, raw_books))
 
     bucket = "information-diet.blairnangle.com"
