@@ -1,60 +1,10 @@
 import json
+import time
 
 import requests
 from bs4 import BeautifulSoup
 
-from common import upload_file
-
-
-def lambda_handler(event, context):
-    my_read_shelf = requests.get(
-        "https://www.goodreads.com/review/list/74431442-blair-nangle?shelf=read"
-    )
-    html = my_read_shelf.content
-    soup = BeautifulSoup(html, "lxml")
-    reviews = soup.find_all("tr", {"class": "bookalike review"})
-    raw_books = []
-    for review in reviews:
-        book = {
-            "title": str(
-                review.find("td", {"class": "field title"})
-                .find("div", {"class": "value"})
-                .find("a", recursive=False)
-                .string
-            ),
-            "author": str(
-                review.find("td", {"class": "field author"})
-                .find("div", {"class": "value"})
-                .find("a", recursive=False)
-                .string
-            ),
-            "finished_on": str(
-                review.find("td", {"class": "field date_read"})
-                .find("div", {"class": "value"})
-                .find("span", {"class": "date_read_value"})
-                .string
-            ),
-        }
-        raw_books.append(book)
-
-    processed_books = list(map(process_book, raw_books))
-
-    bucket = "information-diet.blairnangle.com"
-    latest_file_name = "goodreads.json"
-
-    with open(f"/tmp/{latest_file_name}", "w") as f:
-        json.dump(processed_books, f)
-
-    # copy_file(
-    #     existing_file=latest_file_name,
-    #     new_file=f"goodreads-{time.strftime('%Y-%m-%d')}.json",
-    #     bucket=bucket,
-    # )
-    upload_file(
-        file_name=f"/tmp/{latest_file_name}",
-        bucket=bucket,
-        object_name=latest_file_name,
-    )
+from common import upload_file, copy_file
 
 
 def remove_whitespace(text: str):
@@ -101,3 +51,54 @@ def process_book(raw_book: dict[str]):
     )
 
     return raw_book
+
+
+def lambda_handler(event, context):
+    my_read_shelf = requests.get(
+        "https://www.goodreads.com/review/list/74431442-blair-nangle?shelf=read"
+    )
+    html = my_read_shelf.content
+    soup = BeautifulSoup(html, "html.parser")
+    reviews = soup.find_all("tr", {"class": "bookalike review"})
+    raw_books = []
+    for review in reviews:
+        book = {
+            "title": str(
+                review.find("td", {"class": "field title"})
+                .find("div", {"class": "value"})
+                .find("a", recursive=False)
+                .string
+            ),
+            "author": str(
+                review.find("td", {"class": "field author"})
+                .find("div", {"class": "value"})
+                .find("a", recursive=False)
+                .string
+            ),
+            "finished_on": str(
+                review.find("td", {"class": "field date_read"})
+                .find("div", {"class": "value"})
+                .find("span", {"class": "date_read_value"})
+                .string
+            ),
+        }
+        raw_books.append(book)
+
+    processed_books = list(map(process_book, raw_books))
+
+    bucket = "information-diet.blairnangle.com"
+    latest_file_name = "goodreads.json"
+
+    with open(f"/tmp/{latest_file_name}", "w") as f:
+        json.dump(processed_books, f)
+
+    copy_file(
+        existing_file=latest_file_name,
+        new_file=f"goodreads-{time.strftime('%Y-%m-%d')}.json",
+        bucket=bucket,
+    )
+    upload_file(
+        file_name=f"/tmp/{latest_file_name}",
+        bucket=bucket,
+        object_name=latest_file_name,
+    )
