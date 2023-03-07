@@ -7,10 +7,9 @@ from common import upload_file
 
 
 def lambda_handler(event, context):
-    if __name__ == "__main__":
-        my_read_shelf = requests.get(
-            "https://www.goodreads.com/review/list/74431442-blair-nangle?shelf=read"
-        )
+    my_read_shelf = requests.get(
+        "https://www.goodreads.com/review/list/74431442-blair-nangle?shelf=read"
+    )
     html = my_read_shelf.content
     soup = BeautifulSoup(html, "lxml")
     reviews = soup.find_all("tr", {"class": "bookalike review"})
