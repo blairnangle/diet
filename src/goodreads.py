@@ -1,5 +1,7 @@
 import json
+import logging
 import time
+from typing import Optional
 
 import requests
 from bs4 import BeautifulSoup
@@ -61,45 +63,88 @@ def process_book(raw_book: dict[str]) -> dict[str]:
     }
 
 
-def lambda_handler(event, context):
-    my_read_shelf = requests.get(
-        "https://www.goodreads.com/review/list/74431442-blair-nangle?shelf=read&sort=date_read&order=d"
-    )
-    html = my_read_shelf.content
-    soup = BeautifulSoup(html, "html.parser")
-    reviews = soup.find_all("tr", {"class": "bookalike review"}, limit=20)
-    raw_books = []
-    for review in reviews:
-        book = {
-            "title": str(
-                review.find("td", {"class": "field title"})
-                .find("div", {"class": "value"})
-                .find("a", recursive=False)
-                .find(string=True, recursive=False)
-            ),
-            "url": str(
-                review.find("td", {"class": "field actions"})
-                .find("div", {"class": "value"})
-                .find("div")
-                .find("a", recursive=False)
-                .get("href")
-            ),
-            "author": str(
-                review.find("td", {"class": "field author"})
-                .find("div", {"class": "value"})
-                .find("a", recursive=False)
-                .string
-            ),
-            "finished": str(
-                review.find("td", {"class": "field date_read"})
-                .find("div", {"class": "value"})
-                .find("span", {"class": "date_read_value"})
-                .string
-            ),
-        }
-        raw_books.append(book)
+def scrape_book(review: BeautifulSoup) -> dict[str]:
+    book = {
+        "title": str(
+            review.find("td", {"class": "field title"})
+            .find("div", {"class": "value"})
+            .find("a", recursive=False)
+            .find(string=True, recursive=False)
+        ),
+        "url": str(
+            review.find("td", {"class": "field actions"})
+            .find("div", {"class": "value"})
+            .find("div")
+            .find("a", recursive=False)
+            .get("href")
+        ),
+        "author": str(
+            review.find("td", {"class": "field author"})
+            .find("div", {"class": "value"})
+            .find("a", recursive=False)
+            .string
+        ),
+        "finished": str(
+            review.find("td", {"class": "field date_read"})
+            .find("div", {"class": "value"})
+            .find("span", {"class": "date_read_value"})
+            .string
+        ),
+    }
 
-    processed_books = list(map(process_book, raw_books))
+    return book
+
+
+def scrape_and_process(
+    review: BeautifulSoup,
+    books: list[dict[str]],
+    tag_name: str,
+    tag_attributes: dict[str],
+) -> Optional[list[dict[str]]]:
+    if review is None:
+        return
+    else:
+        try:
+            books.append(process_book(scrape_book(review)))
+        except Exception as e:
+            logging.error(e)
+        finally:
+            next_review = review.find_next(name=tag_name, attrs=tag_attributes)
+            if next_review is not None:
+                return scrape_and_process(
+                    review=next_review,
+                    books=books,
+                    tag_name=tag_name,
+                    tag_attributes=tag_attributes,
+                )
+            else:
+                return books
+
+
+def lambda_handler(event, context):
+    logging.info(
+        f"Beginning execution of goodreads.py with Lambda event: {str(event)} and Lambda context: {str(context)}"
+    )
+
+    goodreads_user_id: str = "74431442-blair-nangle"
+    my_read_shelf = requests.get(
+        f"https://www.goodreads.com/review/list/{goodreads_user_id}?shelf=read&sort=date_read&order=d"
+    )
+    html: bytes = my_read_shelf.content
+    soup: BeautifulSoup = BeautifulSoup(
+        markup=html, parser="html.parser", features="lxml"
+    )
+    processed_books: list[dict[str]] = []
+    tag: str = "tr"
+    attributes: dict[str] = {"class": "bookalike review"}
+    first_review: BeautifulSoup = soup.find(name=tag, attrs=attributes)
+    while len(processed_books) < 20:
+        processed_books = scrape_and_process(
+            review=first_review,
+            books=processed_books,
+            tag_name=tag,
+            tag_attributes=attributes,
+        )
 
     bucket = "information-diet.blairnangle.com"
     latest_file_name = "goodreads.json"

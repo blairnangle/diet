@@ -1,4 +1,5 @@
 import json
+import logging
 import time
 
 import boto3
@@ -9,7 +10,11 @@ from common import copy_file, upload_file
 
 
 def lambda_handler(event, context):
-    secrets_manager_client = boto3.client(
+    logging.info(
+        f"Beginning execution of pocket.py with Lambda event: {str(event)} and Lambda context: {str(context)}"
+    )
+
+    secrets_manager_client: boto3.client = boto3.client(
         service_name="secretsmanager",
         region_name="eu-west-2",
     )
@@ -22,7 +27,7 @@ def lambda_handler(event, context):
         SecretId="information-diet-pocket-access-token"
     )["SecretString"]
 
-    response = requests.post(
+    response: json = requests.post(
         "https://getpocket.com/v3/get",
         data={
             "consumer_key": consumer_key,
@@ -33,8 +38,8 @@ def lambda_handler(event, context):
         },
     ).json()
 
-    content_read = []
-    content_dict = response["list"]
+    content_read: list[dict] = []
+    content_dict: dict = response["list"]
     for content in content_dict.values():
         authors_list = content.get("authors", [])
         if not authors_list:
