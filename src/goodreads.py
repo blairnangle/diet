@@ -144,11 +144,6 @@ goodreads_shelf_base_url: str = "https://www.goodreads.com/review/list"
 goodreads_user_id: str = "74431442-blair-nangle"
 
 
-def num_apperances_of_tag(tag_name, html):
-    soup = BeautifulSoup(html)
-    return len(soup.find_all(tag_name))
-
-
 def process_shelf(shelf_name: str) -> None:
     shelf = requests.get(
         f"{goodreads_shelf_base_url}/{goodreads_user_id}?shelf={shelf_name}&sort=date_read&order=d"
