@@ -20,6 +20,18 @@ resource "aws_s3_bucket_policy" "information_diet" {
   })
 }
 
+resource "aws_s3_bucket_lifecycle_configuration" "information_diet" {
+  bucket = aws_s3_bucket.information_diet.id
+
+  rule {
+    id     = "delete-objects-older-than-30-days"
+    status = "Enabled"
+    expiration {
+      days = 30
+    }
+  }
+}
+
 resource "aws_s3_bucket_cors_configuration" "information_diet" {
   bucket = aws_s3_bucket.information_diet.id
 
