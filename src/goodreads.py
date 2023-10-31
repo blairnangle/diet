@@ -52,18 +52,41 @@ def convert_us_date_str_to_iso_str(date: str) -> str:
         return f"{year}-{short_month_to_number[month]}-{day}"
 
 
-def process_book(raw_book: dict[str]) -> dict[str]:
-    return {
+def process_book(raw_book: dict[str], date_field: str) -> dict[str]:
+    processed = {
         "title": remove_whitespace(raw_book["title"]),
         "url": construct_url(remove_whitespace(raw_book["url"])),
         "author": flip_author(remove_whitespace(raw_book["author"])),
-        "finished": convert_us_date_str_to_iso_str(
-            remove_whitespace(raw_book["finished"])
-        ),
     }
 
+    date = {
+        date_field: convert_us_date_str_to_iso_str(
+            remove_whitespace(raw_book[date_field])
+        )
+    }
 
-def scrape_book(review: BeautifulSoup) -> dict[str]:
+    return processed | date
+
+
+def scrape_date(review: BeautifulSoup, date_field: str) -> Optional[str]:
+    def scrape(field):
+        return str(
+            review.find("td", {"class": f"field date_{field}"})
+            .find("div", {"class": "value"})
+            .find("span", {"class": f"date_{field}_value"})
+            .string
+        )
+
+    match date_field:
+        case "finished":
+            return scrape("read")
+        case "started":
+            return scrape("started")
+        case _:
+            return None
+
+
+def scrape_book(review: BeautifulSoup, date_field: str) -> dict[str]:
     book = {
         "title": str(
             review.find("td", {"class": "field title"})
@@ -84,15 +107,9 @@ def scrape_book(review: BeautifulSoup) -> dict[str]:
             .find("a", recursive=False)
             .string
         ),
-        "finished": str(
-            review.find("td", {"class": "field date_read"})
-            .find("div", {"class": "value"})
-            .find("span", {"class": "date_read_value"})
-            .string
-        ),
     }
 
-    return book
+    return book | {date_field: scrape_date(review, date_field)}
 
 
 def scrape_and_process(
@@ -100,12 +117,13 @@ def scrape_and_process(
     books: list[dict[str]],
     tag_name: str,
     tag_attributes: dict[str],
+    date_field: str,
 ) -> Optional[list[dict[str]]]:
     if review is None:
         return
     else:
         try:
-            books.append(process_book(scrape_book(review)))
+            books.append(process_book(scrape_book(review, date_field), date_field))
         except Exception as e:
             logging.error(e)
         finally:
@@ -116,21 +134,26 @@ def scrape_and_process(
                     books=books,
                     tag_name=tag_name,
                     tag_attributes=tag_attributes,
+                    date_field=date_field,
                 )
             else:
                 return books
 
 
-def lambda_handler(event, context):
-    logging.info(
-        f"Beginning execution of goodreads.py with Lambda event: {str(event)} and Lambda context: {str(context)}"
-    )
+goodreads_shelf_base_url: str = "https://www.goodreads.com/review/list"
+goodreads_user_id: str = "74431442-blair-nangle"
 
-    goodreads_user_id: str = "74431442-blair-nangle"
-    my_read_shelf = requests.get(
-        f"https://www.goodreads.com/review/list/{goodreads_user_id}?shelf=read&sort=date_read&order=d"
+
+def num_apperances_of_tag(tag_name, html):
+    soup = BeautifulSoup(html)
+    return len(soup.find_all(tag_name))
+
+
+def process_shelf(shelf_name: str) -> None:
+    shelf = requests.get(
+        f"{goodreads_shelf_base_url}/{goodreads_user_id}?shelf={shelf_name}&sort=date_read&order=d"
     )
-    html: bytes = my_read_shelf.content
+    html: bytes = shelf.content
     soup: BeautifulSoup = BeautifulSoup(
         markup=html, parser="html.parser", features="lxml"
     )
@@ -138,27 +161,52 @@ def lambda_handler(event, context):
     tag: str = "tr"
     attributes: dict[str] = {"class": "bookalike review"}
     first_review: BeautifulSoup = soup.find(name=tag, attrs=attributes)
-    while len(processed_books) < 20:
+    n_reviews = len(soup.find_all("tr", class_="bookalike review"))
+    while len(processed_books) < min(n_reviews, 20):
         processed_books = scrape_and_process(
             review=first_review,
             books=processed_books,
             tag_name=tag,
             tag_attributes=attributes,
+            date_field=("finished" if shelf_name == "read" else "started"),
         )
 
     bucket = "information-diet.blairnangle.com"
-    latest_file_name = "goodreads.json"
+    latest_file_name = f"goodreads-{shelf_name}.json"
+
+    logging.info(f"Writing {latest_file_name} to temporary directory")
 
     with open(f"/tmp/{latest_file_name}", "w") as f:
         json.dump(processed_books, f)
 
+    new_file_name = f"goodreads-{shelf_name}-{time.strftime('%Y-%m-%d')}.json"
+
+    logging.info(f"Copying {latest_file_name} to {new_file_name}")
+
     copy_file(
         existing_file=latest_file_name,
-        new_file=f"goodreads-{time.strftime('%Y-%m-%d')}.json",
+        new_file=new_file_name,
         bucket=bucket,
     )
+
+    logging.info(f"Uploading {latest_file_name} to {bucket}")
+
     upload_file(
         file_name=f"/tmp/{latest_file_name}",
         bucket=bucket,
         object_name=latest_file_name,
     )
+
+
+def lambda_handler(event, context):
+    logging.info(
+        f"Beginning execution of goodreads.py with Lambda event: {str(event)} and Lambda context: {str(context)}"
+    )
+
+    process_shelf("read")
+    process_shelf("currently-reading")
+
+
+if __name__ == "__main__":
+    process_shelf("read")
+    process_shelf("currently-reading")

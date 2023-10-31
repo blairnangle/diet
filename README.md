@@ -2,6 +2,11 @@
 
 Aggregating the content I've consumed.
 
+## Prerequisites
+
+- [Black](https://github.com/psf/black)
+- [Terraform](https://developer.hashicorp.com/terraform/downloads)
+
 ## Mechanism
 
 - Fetch data from Pocket/scrape data from Goodreads
