@@ -20,14 +20,18 @@ resource "aws_s3_bucket_policy" "information_diet" {
   })
 }
 
+locals {
+  n_days_to_keep_s3_objects = 365
+}
+
 resource "aws_s3_bucket_lifecycle_configuration" "information_diet" {
   bucket = aws_s3_bucket.information_diet.id
 
   rule {
-    id     = "delete-objects-older-than-30-days"
+    id     = "delete-objects-older-than-${local.n_days_to_keep_s3_objects}-days"
     status = "Enabled"
     expiration {
-      days = 30
+      days = local.n_days_to_keep_s3_objects
     }
   }
 }
