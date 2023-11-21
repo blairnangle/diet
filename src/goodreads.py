@@ -201,8 +201,3 @@ def lambda_handler(event, context):
 
     process_shelf("read")
     process_shelf("currently-reading")
-
-
-if __name__ == "__main__":
-    process_shelf("read")
-    process_shelf("currently-reading")
