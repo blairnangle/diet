@@ -26,6 +26,11 @@ The Goodreads API no longer accepts signups 🥲, so I'm using
 
 This will break at some point.
 
+## Letterboxd
+
+At the time of writing, Letterboxd's API is not available for public signups, *but* they do expose an RSS feed for each
+member. E.g., [mine](https://letterboxd.com/blairnangle/rss/). This is straightforward to parse.
+
 ## Secrets
 
 Stored as GitHub Actions secrets.
