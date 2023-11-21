@@ -52,20 +52,20 @@ resource "aws_iam_role_policy_attachment" "goodreads_logging" {
   policy_arn = aws_iam_policy.lambda_logging.arn
 }
 
-#resource "aws_lambda_function" "letterboxd" {
-#  image_uri     = "${aws_ecr_repository.letterboxd.repository_url}:latest"
-#  function_name = "letterboxd"
-#  role          = aws_iam_role.letterboxd.arn
-#  package_type  = "Image"
-#  timeout       = 60
-#}
-#
-#resource "aws_iam_role" "letterboxd" {
-#  name               = "letterboxd"
-#  assume_role_policy = file("./templates/lambda-assume-role.json")
-#}
-#
-#resource "aws_iam_role_policy_attachment" "letterboxd_logging" {
-#  role       = aws_iam_role.letterboxd.name
-#  policy_arn = aws_iam_policy.lambda_logging.arn
-#}
+resource "aws_lambda_function" "letterboxd" {
+  image_uri     = "${aws_ecr_repository.letterboxd.repository_url}:latest"
+  function_name = "letterboxd"
+  role          = aws_iam_role.letterboxd.arn
+  package_type  = "Image"
+  timeout       = 60
+}
+
+resource "aws_iam_role" "letterboxd" {
+  name               = "letterboxd"
+  assume_role_policy = file("./templates/lambda-assume-role.json")
+}
+
+resource "aws_iam_role_policy_attachment" "letterboxd_logging" {
+  role       = aws_iam_role.letterboxd.name
+  policy_arn = aws_iam_policy.lambda_logging.arn
+}
