@@ -167,7 +167,7 @@ def process_shelf(shelf_name: str) -> None:
             date_field=("finished" if shelf_name == "read" else "started"),
         )
 
-    bucket = "information-diet.blairnangle.com"
+    bucket = "diet.blairnangle.com"
     latest_file_name = f"goodreads-{shelf_name}.json"
 
     logging.info(f"Writing {latest_file_name} to temporary directory")

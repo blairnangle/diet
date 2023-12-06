@@ -39,7 +39,7 @@ def lambda_handler(event, context):
 
     films = parse_films()
 
-    bucket = "information-diet.blairnangle.com"
+    bucket = "diet.blairnangle.com"
     latest_file_name = "letterboxd.json"
 
     logging.info(f"Writing {latest_file_name} to temporary directory")

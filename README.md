@@ -1,4 +1,4 @@
-# information-diet
+# diet
 
 Aggregating the content I've consumed.
 

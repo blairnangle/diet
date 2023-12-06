@@ -20,11 +20,11 @@ def lambda_handler(event, context):
     )
 
     consumer_key: str = secrets_manager_client.get_secret_value(
-        SecretId="information-diet-pocket-consumer-key"
+        SecretId="diet-pocket-consumer-key"
     )["SecretString"]
 
     access_token: str = secrets_manager_client.get_secret_value(
-        SecretId="information-diet-pocket-access-token"
+        SecretId="diet-pocket-access-token"
     )["SecretString"]
 
     response: json = requests.post(
@@ -58,7 +58,7 @@ def lambda_handler(event, context):
             }
         )
 
-    bucket = "information-diet.blairnangle.com"
+    bucket = "diet.blairnangle.com"
     latest_file_name = "pocket.json"
 
     with open(f"/tmp/{latest_file_name}", "w") as f:

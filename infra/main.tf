@@ -14,7 +14,7 @@ provider "aws" {
 terraform {
   backend "s3" {
     bucket         = "terraform-state-blair-nangle"
-    key            = "information-diet/terraform.tfstate"
+    key            = "diet/terraform.tfstate"
     region         = "eu-west-2"
     dynamodb_table = "terraform-locks"
     encrypt        = true

@@ -1,9 +1,9 @@
-resource "aws_s3_bucket" "information_diet" {
-  bucket = "information-diet.blairnangle.com"
+resource "aws_s3_bucket" "diet" {
+  bucket = "diet.blairnangle.com"
 }
 
-resource "aws_s3_bucket_public_access_block" "information_diet" {
-  bucket = aws_s3_bucket.information_diet.id
+resource "aws_s3_bucket_public_access_block" "diet" {
+  bucket = aws_s3_bucket.diet.id
 
   block_public_acls       = false
   block_public_policy     = false
@@ -11,12 +11,12 @@ resource "aws_s3_bucket_public_access_block" "information_diet" {
   restrict_public_buckets = false
 }
 
-resource "aws_s3_bucket_policy" "information_diet" {
-  bucket = aws_s3_bucket.information_diet.id
+resource "aws_s3_bucket_policy" "diet" {
+  bucket = aws_s3_bucket.diet.id
   policy = templatefile("${path.module}/templates/s3.json", {
     awsAccountNumber = var.aws_account_number,
     lambdaRoleArn    = aws_iam_role.pocket.arn,
-    bucketName       = aws_s3_bucket.information_diet.bucket
+    bucketName       = aws_s3_bucket.diet.bucket
   })
 }
 
@@ -24,8 +24,8 @@ locals {
   n_days_to_keep_s3_objects = 365
 }
 
-resource "aws_s3_bucket_lifecycle_configuration" "information_diet" {
-  bucket = aws_s3_bucket.information_diet.id
+resource "aws_s3_bucket_lifecycle_configuration" "diet" {
+  bucket = aws_s3_bucket.diet.id
 
   rule {
     id     = "delete-objects-older-than-${local.n_days_to_keep_s3_objects}-days"
@@ -36,8 +36,8 @@ resource "aws_s3_bucket_lifecycle_configuration" "information_diet" {
   }
 }
 
-resource "aws_s3_bucket_cors_configuration" "information_diet" {
-  bucket = aws_s3_bucket.information_diet.id
+resource "aws_s3_bucket_cors_configuration" "diet" {
+  bucket = aws_s3_bucket.diet.id
 
   cors_rule {
     allowed_headers = ["*"]
