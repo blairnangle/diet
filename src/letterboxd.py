@@ -5,7 +5,9 @@ import time
 import feedparser
 from feedparser import FeedParserDict
 
-from common import upload_file, copy_file
+from common import configure_logging, upload_file, copy_file
+
+configure_logging()
 
 
 def to_bool(yes_or_no: str) -> bool:

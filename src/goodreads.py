@@ -6,7 +6,9 @@ from typing import Optional
 import requests
 from bs4 import BeautifulSoup
 
-from common import upload_file, copy_file
+from common import configure_logging, upload_file, copy_file
+
+configure_logging()
 
 
 def remove_whitespace(text: str) -> str:
