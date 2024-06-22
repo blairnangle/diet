@@ -149,7 +149,10 @@ goodreads_user_id: str = "74431442-blair-nangle"
 def process_shelf(shelf_name: str) -> None:
     sort_value = f"date_{'read' if shelf_name == 'read' else 'started'}"
     shelf = requests.get(
-        f"{goodreads_shelf_base_url}/{goodreads_user_id}?shelf={shelf_name}&sort={sort_value}&order=d"
+        f"{goodreads_shelf_base_url}/{goodreads_user_id}?shelf={shelf_name}&sort={sort_value}&order=d",
+        headers={
+            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+        },
     )
     html: bytes = shelf.content
     soup: BeautifulSoup = BeautifulSoup(
