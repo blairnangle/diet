@@ -1,6 +1,7 @@
 import json
 import logging
 import time
+from datetime import datetime
 
 import boto3
 import boto3.s3
@@ -60,11 +61,15 @@ def lambda_handler(event, context):
             }
         )
 
+    content_read_sorted: list[dict] = sorted(
+        content_read, key=lambda x: datetime.fromisoformat(x["date_read"]), reverse=True
+    )
+
     bucket = "diet.blairnangle.com"
     latest_file_name = "pocket.json"
 
     with open(f"/tmp/{latest_file_name}", "w") as f:
-        json.dump(content_read, f)
+        json.dump(content_read_sorted, f)
 
     copy_file(
         existing_file=latest_file_name,
