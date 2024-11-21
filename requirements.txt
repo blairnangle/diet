@@ -1,4 +1,4 @@
-requests==2.31.0
+requests==2.32.2
 boto3==1.33.8
 botocore==1.33.8
 beautifulsoup4==4.12.2
