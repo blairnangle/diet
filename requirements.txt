@@ -4,3 +4,4 @@ botocore==1.33.8
 beautifulsoup4==4.12.2
 lxml==4.9.3
 feedparser==6.0.10
+black==24.10.0
