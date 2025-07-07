@@ -69,3 +69,21 @@ resource "aws_iam_role_policy_attachment" "letterboxd_logging" {
   role       = aws_iam_role.letterboxd.name
   policy_arn = aws_iam_policy.lambda_logging.arn
 }
+
+# resource "aws_lambda_function" "instapaper" {
+#   image_uri     = "${aws_ecr_repository.instapaper.repository_url}:latest"
+#   function_name = "instapaper"
+#   role          = aws_iam_role.instapaper.arn
+#   package_type  = "Image"
+#   timeout       = 60
+# }
+#
+# resource "aws_iam_role" "instapaper" {
+#   name               = "instapaper"
+#   assume_role_policy = file("./templates/lambda-assume-role.json")
+# }
+#
+# resource "aws_iam_role_policy_attachment" "instapaper_logging" {
+#   role       = aws_iam_role.instapaper.name
+#   policy_arn = aws_iam_policy.lambda_logging.arn
+# }

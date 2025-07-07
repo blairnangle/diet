@@ -45,3 +45,17 @@ resource "aws_cloudwatch_event_target" "nightly_cron_letterboxd" {
   rule      = aws_cloudwatch_event_rule.nightly_cron.name
   arn       = aws_lambda_function.letterboxd.arn
 }
+
+# resource "aws_lambda_permission" "allow_cloudwatch_to_trigger_instapaper" {
+#   statement_id  = "AllowExecutionFromCloudWatch"
+#   action        = "lambda:InvokeFunction"
+#   function_name = aws_lambda_function.instapaper.function_name
+#   principal     = "events.amazonaws.com"
+#   source_arn    = aws_cloudwatch_event_rule.nightly_cron.arn
+# }
+#
+# resource "aws_cloudwatch_event_target" "nightly_cron_instapaper" {
+#   target_id = "nightly-cron-instapaper"
+#   rule      = aws_cloudwatch_event_rule.nightly_cron.name
+#   arn       = aws_lambda_function.instapaper.arn
+# }
