@@ -11,18 +11,21 @@ resource "aws_iam_role" "pocket" {
   assume_role_policy = file("./templates/lambda-assume-role.json")
 }
 
-resource "aws_iam_policy" "lambda_secrets_manager" {
-  policy = templatefile("templates/secrets-manager.json",
+resource "aws_iam_policy" "pocket_secrets_manager" {
+  name = "pocket-secrets-manager"
+  policy = templatefile("templates/secrets-manager.json.tpl",
     {
-      pocketConsumerKeyArn = aws_secretsmanager_secret.pocket_consumer_key.arn,
-      pocketAccessTokenArn = aws_secretsmanager_secret.pocket_access_token.arn
+      resources_json = jsonencode([
+        aws_secretsmanager_secret.pocket_consumer_key.arn,
+        aws_secretsmanager_secret.pocket_access_token.arn
+      ])
     }
   )
 }
 
-resource "aws_iam_role_policy_attachment" "lambda_secrets_manager" {
+resource "aws_iam_role_policy_attachment" "pocket_secrets_manager" {
   role       = aws_iam_role.pocket.name
-  policy_arn = aws_iam_policy.lambda_secrets_manager.arn
+  policy_arn = aws_iam_policy.pocket_secrets_manager.arn
 }
 
 resource "aws_iam_policy" "lambda_logging" {
@@ -81,6 +84,24 @@ resource "aws_lambda_function" "instapaper" {
 resource "aws_iam_role" "instapaper" {
   name               = "instapaper"
   assume_role_policy = file("./templates/lambda-assume-role.json")
+}
+
+resource "aws_iam_policy" "instapaper_secrets_manager" {
+  name = "instapaper-secrets-manager"
+  policy = templatefile("templates/secrets-manager.json.tpl",
+    {
+      resources_json = jsonencode([
+        aws_secretsmanager_secret.instapaper_oauth_consumer_id.arn,
+        aws_secretsmanager_secret.instapaper_oauth_consumer_secret.arn,
+        aws_secretsmanager_secret.instapaper_password.arn
+      ])
+    }
+  )
+}
+
+resource "aws_iam_role_policy_attachment" "instapaper_secrets_manager" {
+  role       = aws_iam_role.instapaper.name
+  policy_arn = aws_iam_policy.instapaper_secrets_manager.arn
 }
 
 resource "aws_iam_role_policy_attachment" "instapaper_logging" {

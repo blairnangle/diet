@@ -9,10 +9,7 @@
         "secretsmanager:DescribeSecret",
         "secretsmanager:ListSecretVersionIds"
       ],
-      "Resource": [
-        "${pocketConsumerKeyArn}",
-        "${pocketAccessTokenArn}"
-      ]
+      "Resource": ${resources_json}
     },
     {
       "Effect": "Allow",
