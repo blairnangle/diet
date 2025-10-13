@@ -51,14 +51,6 @@ def lambda_handler(event, context):
 
     new_file_name = f"letterboxd-{time.strftime('%Y-%m-%d')}.json"
 
-    logging.info(f"Copying {latest_file_name} to {new_file_name}")
-
-    copy_file(
-        existing_file=latest_file_name,
-        new_file=new_file_name,
-        bucket=bucket,
-    )
-
     logging.info(f"Uploading {latest_file_name} to {bucket}")
 
     upload_file(
@@ -66,3 +58,15 @@ def lambda_handler(event, context):
         bucket=bucket,
         object_name=latest_file_name,
     )
+
+    logging.info(f"Archiving data to {new_file_name}")
+
+    try:
+        copy_file(
+            existing_file=latest_file_name,
+            new_file=new_file_name,
+            bucket=bucket,
+        )
+        logging.info(f"Successfully archived data to {new_file_name}")
+    except Exception as e:
+        logging.error(f"Failed to create daily archive {new_file_name}: {e}")

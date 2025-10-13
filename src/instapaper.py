@@ -3,7 +3,6 @@ import logging
 import time
 
 import boto3
-import boto3.s3
 from requests_oauthlib import OAuth1Session
 
 from common import configure_logging, upload_file, copy_file
@@ -95,15 +94,21 @@ def lambda_handler(event, context):
         with open(f"/tmp/{latest_file_name}", "w") as f:
             json.dump(content_read_sorted, f)
 
-        copy_file(
-            existing_file=latest_file_name,
-            new_file=f"instapaper-{time.strftime('%Y-%m-%d')}.json",
-            bucket=bucket,
-        )
         upload_file(
             file_name=f"/tmp/{latest_file_name}",
             bucket=bucket,
             object_name=latest_file_name,
         )
+
+        dated_file_name = f"instapaper-{time.strftime('%Y-%m-%d')}.json"
+        try:
+            copy_file(
+                existing_file=latest_file_name,
+                new_file=dated_file_name,
+                bucket=bucket,
+            )
+            logging.info(f"Successfully archived data to {dated_file_name}")
+        except Exception as e:
+            logging.error(f"Failed to create daily archive {dated_file_name}: {e}")
     else:
         print("Error:", response.status_code, response.text)
