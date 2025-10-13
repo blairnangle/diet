@@ -13,10 +13,14 @@ resource "aws_s3_bucket_public_access_block" "diet" {
 
 resource "aws_s3_bucket_policy" "diet" {
   bucket = aws_s3_bucket.diet.id
-  policy = templatefile("${path.module}/templates/s3.json", {
+  policy = templatefile("${path.module}/templates/s3.json.tpl", {
     awsAccountNumber = var.aws_account_number,
-    lambdaRoleArn    = aws_iam_role.pocket.arn,
-    bucketName       = aws_s3_bucket.diet.bucket
+    lambdaRoleArns   = jsonencode([
+      aws_iam_role.goodreads.arn,
+      aws_iam_role.letterboxd.arn,
+      aws_iam_role.instapaper.arn
+    ]),
+    bucketName = aws_s3_bucket.diet.bucket
   })
 }
 

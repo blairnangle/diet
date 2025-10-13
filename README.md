@@ -9,15 +9,13 @@ Aggregating the content I've consumed.
 
 ## Mechanism
 
-- Fetch data from Pocket/scrape data from Goodreads
+- Fetch data from Instapaper/scrape data from Goodreads/Letterboxd RSS feed
 - Parse and format
 - Write to an S3 bucket that has public read access
 
-## Pocket
+## Instapaper
 
-Use [this tool](https://reader.fxneumann.de/plugins/oneclickpocket/auth.php) by
-[Felix Neumann](https://twitter.com/fxneumann) to get a long-lived access token using the annoying three-legged OAuth
-flow.
+I have registered "diet" as an OAuth application against the [Instapaper API](https://www.instapaper.com/api).
 
 ## Goodreads
 
@@ -42,6 +40,8 @@ AWS_SECRET_ACCESS_KEY
 
 # explicitly declared in infra/variables.tf
 AWS_ACCOUNT_NUMBER
-POCKET_CONSUMER_KEY
-POCKET_ACCESS_TOKEN
+
+INSTAPAPER_OAUTH_CONSUMER_ID
+INSTAPAPER_OAUTH_CONSUMER_SECRET
+INSTAPAPER_PASSWORD
 ```

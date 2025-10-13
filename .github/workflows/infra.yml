@@ -7,8 +7,6 @@ on:
 env:
   INFRA_DIRECTORY: infra
   TF_VAR_aws_account_number: ${{ secrets.AWS_ACCOUNT_NUMBER }}
-  TF_VAR_pocket_consumer_key: ${{ secrets.POCKET_CONSUMER_KEY }}
-  TF_VAR_pocket_access_token: ${{ secrets.POCKET_ACCESS_TOKEN }}
   TF_VAR_instapaper_oauth_consumer_id: ${{ secrets.INSTAPAPER_OAUTH_CONSUMER_ID }}
   TF_VAR_instapaper_oauth_consumer_secret: ${{ secrets.INSTAPAPER_OAUTH_CONSUMER_SECRET }}
   TF_VAR_instapaper_password: ${{ secrets.INSTAPAPER_PASSWORD }}
